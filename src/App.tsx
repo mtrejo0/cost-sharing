@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   Button,
+  Card,
   IconButton,
   Paper,
   Stack,
@@ -15,6 +16,7 @@ import {
 import {
   Add,
   Clear,
+  Delete,
   RemoveCircle,
 } from "@mui/icons-material";
 
@@ -33,7 +35,7 @@ const buttonStyle = { width: { md: "150px", xs: "100%" } };
 
 const inputStyle = { width: { md: "150px", xs: "100%" } };
 
-const paperStyle = { padding: "32px", margin: "16px 0" };
+const paperStyle = { padding: "16px", marginBottom: "16px" };
 
 const gridSpacing = 4;
 
@@ -127,7 +129,7 @@ function App() {
 ></TextField>
 
   return (
-    <Stack sx={{ padding: "32px" }}>
+    <Stack sx={{ padding: "16px" }}>
       <b><p>How much was the bill (no tip, no tax)</p></b>
       <TextField
         sx={inputStyle}
@@ -190,9 +192,9 @@ function App() {
 
       <b><p>What did each person get?</p></b>
       {people.map((person, i) => (
-        <Paper sx={paperStyle}>
+        <Card sx={paperStyle} variant="outlined">
           <Stack spacing={gridSpacing}>
-              <Stack direction="row" spacing={isMobile ? 0 : gridSpacing}>
+              <Stack direction="row" spacing={1} alignItems="center">
                 <TextField
                   sx={inputStyle}
                   value={person.name}
@@ -228,66 +230,55 @@ function App() {
                   }}
                 ></TextField>
 
+                <p style={{whiteSpace: "nowrap"}}>Total: ${personTotal(person)}</p>
+
                 <Button
                   color="error"
                   onClick={() => {
                     setPeople((s) => s.filter((_, j) => i !== j));
                   }}
                 >
-                  <RemoveCircle />
+                  <Delete />
                 </Button>
               </Stack>
-              <p>Total: ${personTotal(person)}</p>
+              
 
 
             {person.items.map((item, j) => (
-              <Paper sx={paperStyle}>
-                <Stack spacing={gridSpacing}>
-                  <Stack
-                    spacing={gridSpacing}
-                    direction={{ md: "row", xs: "column" }}
-                    sx={{ width: "100%", justifyContent: "space-between" }}
+                <Stack direction="row" spacing={1}>
+                  {itemNameSelection(item, i, j)}
+                  <TextField
+                    sx={inputStyle}
+                    value={item.cost}
+                    label="Item Cost"
+                    type="number"
+                    InputProps={{ inputProps: { min: 0 } }}
+                    onChange={(e) => {
+                      const newCost = parseFloat(e.target.value);
+
+                      setPeople((s) => {
+                        const copyState = [...s];
+                        copyState[i].items[j].cost = newCost;
+                        return copyState;
+                      });
+                    }}
+                  ></TextField>
+
+                  <Button
+                    color="error"
+                    onClick={() => {
+                      setPeople((s) => {
+                        const copyState = [...s];
+                        copyState[i].items = copyState[i].items.filter(
+                          (_, k) => k !== j
+                        );
+                        return copyState;
+                      });
+                    }}
                   >
-                    <Stack direction="row" spacing={isMobile ? 0 : gridSpacing}>
-                    {!isMobile && itemNameSelection(item, i, j)}
-                      <TextField
-                        sx={inputStyle}
-                        value={item.cost}
-                        label="Item Cost"
-                        type="number"
-                        InputProps={{ inputProps: { min: 0 } }}
-                        onChange={(e) => {
-                          const newCost = parseFloat(e.target.value);
-
-                          setPeople((s) => {
-                            const copyState = [...s];
-                            copyState[i].items[j].cost = newCost;
-                            return copyState;
-                          });
-                        }}
-                      ></TextField>
-
-                      <Button
-                        color="error"
-                        onClick={() => {
-                          setPeople((s) => {
-                            const copyState = [...s];
-                            copyState[i].items = copyState[i].items.filter(
-                              (_, k) => k !== j
-                            );
-                            return copyState;
-                          });
-                        }}
-                      >
-                        <RemoveCircle />
-                      </Button>
-                    </Stack>
-
-                    {isMobile && itemNameSelection(item, i, j)}
-                    
-                  </Stack>
+                    <RemoveCircle />
+                  </Button>
                 </Stack>
-              </Paper>
             ))}
 
             <Button
@@ -310,7 +301,7 @@ function App() {
               Item
             </Button>
           </Stack>
-        </Paper>
+        </Card>
       ))}
       <Button
         sx={buttonStyle}
@@ -331,7 +322,7 @@ function App() {
       </Button>
       <p>Breakdown</p>
 
-      <Table sx={{ml: isMobile ? -4: 0}}>
+      <Table sx={{ml: isMobile ? -2: 0}}>
         <TableHead>
           <TableRow>
             <TableCell>Name</TableCell>
@@ -392,7 +383,7 @@ function App() {
             <TableCell align="right">${tipDollars}</TableCell>
 
             <TableCell align="right">
-              ${peopleTotalAllIncluded - totalAllIncluded}
+              ${(peopleTotalAllIncluded - totalAllIncluded).toFixed(2)}
             </TableCell>
           </TableRow>
         </TableBody>
