@@ -1,1 +1,1 @@
-# A Better cost splitting app!
+# A better cost splitting app!
