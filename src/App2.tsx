@@ -74,22 +74,22 @@ function App() {
 
   const [items, setItems] = useState<Item[]>([initialItem]);
 
-  const totalItemCost = items.reduce((a, s) => a + s.cost, 0);
-  const totalItemCostPlusTax = (totalItemCost + taxDollars).toFixed(2);
-  const totalItemCostPlusTaxTip = (
-    totalItemCost +
+  const itemsSubtotal = items.reduce((a, s) => a + s.cost, 0);
+  const itemsSubtotalPlusTax = (itemsSubtotal + taxDollars).toFixed(2);
+  const itemsSubtotalPlusTaxTip = (
+    itemsSubtotal +
     tipDollars +
     taxDollars
   ).toFixed(2);
 
-  const peopleTotal = names.reduce((a, s) => a + personTotal(s), 0).toFixed(2);
+  const peopleSubtotal = names.reduce((a, s) => a + personTotal(s), 0).toFixed(2);
 
-  const peopleTotalTax = names
+  const peopleSubtotalPlusTax = names
     .reduce((a, s) => a + (personTotal(s) * taxPercentage) / 100, 0)
     .toFixed(2);
 
-  const peopleTotalAllIncluded =
-    parseFloat(peopleTotal) + tipDollars + taxDollars;
+  const peopleSubtotalPlusTaxTip =
+    parseFloat(peopleSubtotal) + tipDollars + taxDollars;
 
   const ITEM_HEIGHT = 48;
   const ITEM_PADDING_TOP = 8;
@@ -301,7 +301,7 @@ function App() {
         </Button>
       </Stack>
 
-      <p>Total: ${totalItemCost}</p>
+      <p>Subtotal: ${itemsSubtotal}</p>
 
       <b>
         <p>3) How much was tax?</p>
@@ -318,7 +318,7 @@ function App() {
             setTaxDollars(v);
 
             setTaxPercentage(
-              parseFloat(((v / totalItemCost) * 100).toFixed(2))
+              parseFloat(((v / itemsSubtotal) * 100).toFixed(2))
             );
           }}
         ></TextField>
@@ -331,7 +331,7 @@ function App() {
         ></TextField>
       </Stack>
 
-      <p>Total + Tax: ${totalItemCostPlusTax}</p>
+      <p>Subtotal + Tax: ${itemsSubtotalPlusTax}</p>
 
       <b>
         <p>4) How much was tip?</p>
@@ -349,7 +349,7 @@ function App() {
 
             setTipPercentage(
               parseFloat(
-                ((v / parseFloat(totalItemCostPlusTax)) * 100).toFixed(2)
+                ((v / parseFloat(itemsSubtotalPlusTax)) * 100).toFixed(2)
               )
             );
           }}
@@ -363,7 +363,7 @@ function App() {
         ></TextField>
       </Stack>
 
-      <p>Total + Tax + Tip: ${totalItemCostPlusTaxTip}</p>
+      <p>Subtotal + Tax + Tip: ${itemsSubtotalPlusTaxTip}</p>
 
       <b>
         <p>5) Breakdown</p>
@@ -417,11 +417,11 @@ function App() {
             <TableCell component="th" scope="row">
               Total
             </TableCell>
-            <TableCell align="right">${peopleTotal}</TableCell>
-            <TableCell align="right">${peopleTotalTax}</TableCell>
+            <TableCell align="right">${peopleSubtotal}</TableCell>
+            <TableCell align="right">${peopleSubtotalPlusTax}</TableCell>
             <TableCell align="right">${tipDollars.toFixed(2)}</TableCell>
             <TableCell align="right">
-              ${peopleTotalAllIncluded.toFixed(2)}
+              ${peopleSubtotalPlusTaxTip.toFixed(2)}
             </TableCell>
           </TableRow>
 
@@ -429,14 +429,14 @@ function App() {
             <TableCell component="th" scope="row">
               Expected
             </TableCell>
-            <TableCell align="right">${totalItemCost.toFixed(2)}</TableCell>
+            <TableCell align="right">${itemsSubtotal.toFixed(2)}</TableCell>
             <TableCell align="right">${taxDollars.toFixed(2)}</TableCell>
             <TableCell align="right">${tipDollars.toFixed(2)}</TableCell>
 
             <TableCell align="right">
               $
               {(
-                peopleTotalAllIncluded - parseFloat(totalItemCostPlusTaxTip)
+                peopleSubtotalPlusTaxTip - parseFloat(itemsSubtotalPlusTaxTip)
               ).toFixed(2)}
             </TableCell>
           </TableRow>
