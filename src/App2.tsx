@@ -21,27 +21,22 @@ import {
 } from "@mui/material";
 import {
   Add,
-  AddCircle,
   Clear,
   Delete,
-  PlusOne,
   RemoveCircle,
 } from "@mui/icons-material";
 
 interface Item {
   name: string;
   cost: number;
-  people: string[]
+  people: string[];
 }
-
-
 
 const buttonStyle = { width: { md: "150px", xs: "100%" } };
 
 const inputStyle = { width: { md: "150px", xs: "100%" } };
 
 const paperStyle = { padding: "16px" };
-
 
 const gridSpacing = 4;
 
@@ -51,13 +46,11 @@ function App() {
   const initialItem = {
     name: "Item 1",
     cost: 10,
-    people: []
+    people: [],
   };
 
- 
   const [newPersonIndex, setNewPersonIndex] = useState(2);
   const [newItemIndex, setNewItemIndex] = useState(2);
-
 
   const [taxDollars, setTaxDollars] = useState(0);
   const [taxPercentage, setTaxPercentage] = useState(0);
@@ -65,33 +58,29 @@ function App() {
   const [tipDollars, setTipDollars] = useState(0);
   const [tipPercentage, setTipPercentage] = useState(0);
 
-
-    const personTotal = (name: string) => {
-      let sum = 0
-      items.forEach(each => {
-        if (each.people.includes(name)) {
-          const n = each.people.length
-          const costPer = each.cost / n
-          sum += costPer
-        }
-      })
-      return sum
-    }
-
-  
-
+  const personTotal = (name: string) => {
+    let sum = 0;
+    items.forEach((each) => {
+      if (each.people.includes(name)) {
+        const n = each.people.length;
+        const costPer = each.cost / n;
+        sum += costPer;
+      }
+    });
+    return sum;
+  };
 
   const [names, setNames] = useState<string[]>(["Myself", "Person 1"]);
 
   const [items, setItems] = useState<Item[]>([initialItem]);
 
-
-  const totalItemCost = items.reduce((a,s) => a + s.cost, 0)
-  const totalItemCostPlusTax = (totalItemCost + taxDollars).toFixed(2)
-  const totalItemCostPlusTaxTip = (totalItemCost + tipDollars + taxDollars).toFixed(2)
-
-
-
+  const totalItemCost = items.reduce((a, s) => a + s.cost, 0);
+  const totalItemCostPlusTax = (totalItemCost + taxDollars).toFixed(2);
+  const totalItemCostPlusTaxTip = (
+    totalItemCost +
+    tipDollars +
+    taxDollars
+  ).toFixed(2);
 
   const peopleTotal = names.reduce((a, s) => a + personTotal(s), 0).toFixed(2);
 
@@ -99,117 +88,39 @@ function App() {
     .reduce((a, s) => a + (personTotal(s) * taxPercentage) / 100, 0)
     .toFixed(2);
 
-
-  const peopleTotalAllIncluded = parseFloat(peopleTotal) + tipDollars + taxDollars
-
-
-
-
+  const peopleTotalAllIncluded =
+    parseFloat(peopleTotal) + tipDollars + taxDollars;
 
   const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250,
+  const ITEM_PADDING_TOP = 8;
+  const MenuProps = {
+    PaperProps: {
+      style: {
+        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+        width: 250,
+      },
     },
-  },
-};
-
+  };
 
   return (
     <Stack sx={{ padding: "16px" }}>
-      <b><p>1) Add people</p></b>
+      <b>
+        <p>1) Add people</p>
+      </b>
       <Stack spacing={1}>
-
-      
-      {names.map((name, i) => (
-            <Stack direction="row" spacing={1} alignItems="center">
-              <TextField
-                sx={inputStyle}
-                value={name}
-                label="Person Name"
-                onChange={(e) => {
-                  const newName = e.target.value;
-
-                  setNames((s) => {
-                    const copyState = [...s];
-
-                    copyState[i] = newName;
-
-                    return copyState;
-                  });
-                }}
-                InputProps={{
-                  endAdornment: (
-                    <IconButton
-                      sx={{ visibility: name ? "visible" : "hidden" }}
-                      onClick={() => {
-                        setNames((s) => {
-                          const copyState = [...s];
-
-                          copyState[i] = "";
-
-                          return copyState;
-                        });
-                      }}
-                    >
-                      <Clear />
-                    </IconButton>
-                  ),
-                }}
-              ></TextField>
-
-              <Button
-                color="error"
-                onClick={() => {
-                  setNames((s) => s.filter((_, j) => i !== j));
-                }}
-              >
-                <Delete />
-              </Button>
-            </Stack>
-      ))}
-
-<Button
-        sx={buttonStyle}
-        variant="outlined"
-        startIcon={<Add />}
-        onClick={() => {
-          setNames((s) => {
-            const newPerson =  `Person ${newPersonIndex}`
-            return [...s, newPerson];
-          });
-          setNewPersonIndex((v) => v + 1);
-        }}
-      >
-        Person
-      </Button>
-
-
-</Stack>
-
-      
-      <b><p>2) Add items</p></b>
-
-      <Stack spacing={1}>
-        {items.map((item, i) => (
-          <Paper style={paperStyle} elevation={4}>
-          <Stack spacing={1}>
-
-            
-          <Stack direction="row" spacing={1}>
+        {names.map((name, i) => (
+          <Stack direction="row" spacing={1} alignItems="center">
             <TextField
               sx={inputStyle}
-              value={item.name}
-              label="Item Name"
+              value={name}
+              label="Person Name"
               onChange={(e) => {
                 const newName = e.target.value;
-                setItems((s) => {
+
+                setNames((s) => {
                   const copyState = [...s];
 
-                  copyState[i].name = newName;
+                  copyState[i] = newName;
 
                   return copyState;
                 });
@@ -217,14 +128,12 @@ const MenuProps = {
               InputProps={{
                 endAdornment: (
                   <IconButton
-                    sx={{
-                      visibility: item.name ? "visible" : "hidden",
-                    }}
+                    sx={{ visibility: name ? "visible" : "hidden" }}
                     onClick={() => {
-                      setItems((s) => {
+                      setNames((s) => {
                         const copyState = [...s];
 
-                        copyState[i].name = "";
+                        copyState[i] = "";
 
                         return copyState;
                       });
@@ -235,95 +144,164 @@ const MenuProps = {
                 ),
               }}
             ></TextField>
-            <TextField
-              sx={inputStyle}
-              value={item.cost}
-              label="Item Cost"
-              type="number"
-              InputProps={{ inputProps: { min: 0 } }}
 
-              onChange={(e) => {
-
-                setItems(s => {
-
-                  const copyState = [...s]
-
-                  copyState[i].cost = parseFloat(e.target.value)
-
-                  return copyState
-                })
+            <Button
+              color="error"
+              onClick={() => {
+                setNames((s) => s.filter((_, j) => i !== j));
               }}
-            ></TextField>
-
-            <Button color="error" onClick={() => {
-              setItems(s => s.filter((_,j) => i !==j ))
-            }}>
-              <RemoveCircle />
+            >
+              <Delete />
             </Button>
           </Stack>
+        ))}
 
-          <FormControl sx={{ width: {xs: "100%", md: 310} }}>
-            <InputLabel id="demo-multiple-checkbox-label">Who joined?</InputLabel>
-            <Select
-              labelId="demo-multiple-checkbox-label"
-              id="demo-multiple-checkbox"
-              multiple
-              value={item.people}
-              error={item.people.length == 0}
-              onChange={e => {
+        <Button
+          sx={buttonStyle}
+          variant="outlined"
+          startIcon={<Add />}
+          onClick={() => {
+            setNames((s) => {
+              const newPerson = `Person ${newPersonIndex}`;
+              return [...s, newPerson];
+            });
+            setNewPersonIndex((v) => v + 1);
+          }}
+        >
+          Person
+        </Button>
+      </Stack>
 
-                const value = e.target.value
+      <b>
+        <p>2) Add items</p>
+      </b>
 
-                const names = typeof value === 'string' ? value.split(',') : value
+      <Stack spacing={1}>
+        {items.map((item, i) => (
+          <Paper style={paperStyle} elevation={4}>
+            <Stack spacing={1}>
+              <Stack direction="row" spacing={1}>
+                <TextField
+                  sx={inputStyle}
+                  value={item.name}
+                  label="Item Name"
+                  onChange={(e) => {
+                    const newName = e.target.value;
+                    setItems((s) => {
+                      const copyState = [...s];
 
-                setItems(s => {
-                  const copyState = [...s]
+                      copyState[i].name = newName;
 
-                  copyState[i].people = names
+                      return copyState;
+                    });
+                  }}
+                  InputProps={{
+                    endAdornment: (
+                      <IconButton
+                        sx={{
+                          visibility: item.name ? "visible" : "hidden",
+                        }}
+                        onClick={() => {
+                          setItems((s) => {
+                            const copyState = [...s];
 
-                  return copyState
-                })
+                            copyState[i].name = "";
 
-              }}
-              input={<OutlinedInput label="Who joined?" />}
-              renderValue={(selected) => selected.join(', ')}
-              MenuProps={MenuProps}
-            >
-              {names.map((name) => (
-                <MenuItem key={name} value={name}>
-                  <Checkbox checked={item.people.indexOf(name) > -1} />
-                  <ListItemText primary={name} />
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+                            return copyState;
+                          });
+                        }}
+                      >
+                        <Clear />
+                      </IconButton>
+                    ),
+                  }}
+                ></TextField>
+                <TextField
+                  sx={inputStyle}
+                  value={item.cost}
+                  label="Item Cost"
+                  type="number"
+                  InputProps={{ inputProps: { min: 0 } }}
+                  onChange={(e) => {
+                    setItems((s) => {
+                      const copyState = [...s];
 
-          
-          </Stack>
+                      copyState[i].cost = parseFloat(e.target.value);
+
+                      return copyState;
+                    });
+                  }}
+                ></TextField>
+
+                <Button
+                  color="error"
+                  onClick={() => {
+                    setItems((s) => s.filter((_, j) => i !== j));
+                  }}
+                >
+                  <RemoveCircle />
+                </Button>
+              </Stack>
+
+              <FormControl sx={{ width: { xs: "100%", md: 310 } }}>
+                <InputLabel id="demo-multiple-checkbox-label">
+                  Who joined?
+                </InputLabel>
+                <Select
+                  labelId="demo-multiple-checkbox-label"
+                  id="demo-multiple-checkbox"
+                  multiple
+                  value={item.people}
+                  error={item.people.length === 0}
+                  onChange={(e) => {
+                    const value = e.target.value;
+
+                    const names =
+                      typeof value === "string" ? value.split(",") : value;
+
+                    setItems((s) => {
+                      const copyState = [...s];
+
+                      copyState[i].people = names;
+
+                      return copyState;
+                    });
+                  }}
+                  input={<OutlinedInput label="Who joined?" />}
+                  renderValue={(selected) => selected.join(", ")}
+                  MenuProps={MenuProps}
+                >
+                  {names.map((name) => (
+                    <MenuItem key={name} value={name}>
+                      <Checkbox checked={item.people.indexOf(name) > -1} />
+                      <ListItemText primary={name} />
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Stack>
           </Paper>
         ))}
         <Button
-        sx={buttonStyle}
-        variant="outlined"
-        startIcon={<Add />}
-        onClick={() => {
-          setItems((s) => {
-            const newItem = {
-              ...initialItem,
-              name: `Item ${newItemIndex}`,
-            };
-            return [...s, newItem];
-          });
-          setNewItemIndex((s) => s + 1);
-        }}
-      >
-        Item
-      </Button>
+          sx={buttonStyle}
+          variant="outlined"
+          startIcon={<Add />}
+          onClick={() => {
+            setItems((s) => {
+              const newItem = {
+                ...initialItem,
+                name: `Item ${newItemIndex}`,
+              };
+              return [...s, newItem];
+            });
+            setNewItemIndex((s) => s + 1);
+          }}
+        >
+          Item
+        </Button>
       </Stack>
 
-
-        <p>Total: ${totalItemCost}</p>
-
+      <p>Total: ${totalItemCost}</p>
 
       <b>
         <p>3) How much was tax?</p>
@@ -339,7 +317,9 @@ const MenuProps = {
             const v = parseFloat(e.target.value ?? 0);
             setTaxDollars(v);
 
-            setTaxPercentage(parseFloat(((v / totalItemCost) * 100).toFixed(2)));
+            setTaxPercentage(
+              parseFloat(((v / totalItemCost) * 100).toFixed(2))
+            );
           }}
         ></TextField>
         <TextField
@@ -351,10 +331,7 @@ const MenuProps = {
         ></TextField>
       </Stack>
 
-
-
-        <p>Total + Tax: ${totalItemCostPlusTax}</p>
-
+      <p>Total + Tax: ${totalItemCostPlusTax}</p>
 
       <b>
         <p>4) How much was tip?</p>
@@ -370,7 +347,11 @@ const MenuProps = {
             const v = parseFloat(e.target.value ?? 0);
             setTipDollars(v);
 
-            setTipPercentage(parseFloat(((v / parseFloat(totalItemCostPlusTax)) * 100).toFixed(2)));
+            setTipPercentage(
+              parseFloat(
+                ((v / parseFloat(totalItemCostPlusTax)) * 100).toFixed(2)
+              )
+            );
           }}
         ></TextField>
         <TextField
@@ -382,12 +363,11 @@ const MenuProps = {
         ></TextField>
       </Stack>
 
+      <p>Total + Tax + Tip: ${totalItemCostPlusTaxTip}</p>
 
-        <p>Total + Tax + Tip: ${totalItemCostPlusTaxTip}</p>
-  
-
-
-      <b><p>5) Breakdown</p></b>
+      <b>
+        <p>5) Breakdown</p>
+      </b>
 
       <Table sx={{ ml: isMobile ? -2 : 0 }}>
         <TableHead>
@@ -408,12 +388,14 @@ const MenuProps = {
               <TableCell component="th" scope="row">
                 {name}
               </TableCell>
-              <TableCell align="right">${personTotal(name).toFixed(2)}</TableCell>
+              <TableCell align="right">
+                ${personTotal(name).toFixed(2)}
+              </TableCell>
               <TableCell align="right">
                 ${((personTotal(name) * taxPercentage) / 100).toFixed(2)}
               </TableCell>
               <TableCell align="right">
-                ${(tipDollars/names.length).toFixed(2)}
+                ${(tipDollars / names.length).toFixed(2)}
               </TableCell>
               <TableCell align="right">
                 $
@@ -438,7 +420,9 @@ const MenuProps = {
             <TableCell align="right">${peopleTotal}</TableCell>
             <TableCell align="right">${peopleTotalTax}</TableCell>
             <TableCell align="right">${tipDollars.toFixed(2)}</TableCell>
-            <TableCell align="right">${peopleTotalAllIncluded.toFixed(2)}</TableCell>
+            <TableCell align="right">
+              ${peopleTotalAllIncluded.toFixed(2)}
+            </TableCell>
           </TableRow>
 
           <TableRow sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
@@ -450,7 +434,10 @@ const MenuProps = {
             <TableCell align="right">${tipDollars.toFixed(2)}</TableCell>
 
             <TableCell align="right">
-              ${(peopleTotalAllIncluded - parseFloat(totalItemCostPlusTaxTip)).toFixed(2)}
+              $
+              {(
+                peopleTotalAllIncluded - parseFloat(totalItemCostPlusTaxTip)
+              ).toFixed(2)}
             </TableCell>
           </TableRow>
         </TableBody>
