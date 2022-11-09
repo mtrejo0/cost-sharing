@@ -3,7 +3,6 @@ import {
   Button,
   Card,
   IconButton,
-  Paper,
   Stack,
   Table,
   TableBody,
@@ -13,12 +12,7 @@ import {
   TextField,
   useMediaQuery,
 } from "@mui/material";
-import {
-  Add,
-  Clear,
-  Delete,
-  RemoveCircle,
-} from "@mui/icons-material";
+import { Add, Clear, Delete, RemoveCircle } from "@mui/icons-material";
 
 interface Item {
   name: string;
@@ -40,9 +34,7 @@ const paperStyle = { padding: "16px", marginBottom: "16px" };
 const gridSpacing = 4;
 
 function App() {
-
-
-  const isMobile = useMediaQuery('(max-width:600px)')
+  const isMobile = useMediaQuery("(max-width:600px)");
 
   const initialItem = {
     name: "Item 1",
@@ -94,43 +86,46 @@ function App() {
       .toFixed(2)
   );
 
+  const itemNameSelection = (item: Item, i: number, j: number) => (
+    <TextField
+      sx={inputStyle}
+      value={item.name}
+      label="Item Name"
+      onChange={(e) => {
+        const newName = e.target.value;
 
-  const itemNameSelection = (item: Item, i: number, j: number) => <TextField
-  sx={inputStyle}
-  value={item.name}
-  label="Item Name"
-  onChange={(e) => {
-    const newName = e.target.value;
-
-    setPeople((s) => {
-      const copyState = [...s];
-      copyState[i].items[j].name = newName;
-      return copyState;
-    });
-  }}
-  InputProps={{
-    endAdornment: (
-      <IconButton
-        sx={{
-          visibility: item.name ? "visible" : "hidden",
-        }}
-        onClick={() => {
-          setPeople((s) => {
-            const copyState = [...s];
-            copyState[i].items[j].name = "";
-            return copyState;
-          });
-        }}
-      >
-        <Clear />
-      </IconButton>
-    ),
-  }}
-></TextField>
+        setPeople((s) => {
+          const copyState = [...s];
+          copyState[i].items[j].name = newName;
+          return copyState;
+        });
+      }}
+      InputProps={{
+        endAdornment: (
+          <IconButton
+            sx={{
+              visibility: item.name ? "visible" : "hidden",
+            }}
+            onClick={() => {
+              setPeople((s) => {
+                const copyState = [...s];
+                copyState[i].items[j].name = "";
+                return copyState;
+              });
+            }}
+          >
+            <Clear />
+          </IconButton>
+        ),
+      }}
+    ></TextField>
+  );
 
   return (
     <Stack sx={{ padding: "16px" }}>
-      <b><p>How much was the bill (no tip, no tax)</p></b>
+      <b>
+        <p>How much was the bill (no tip, no tax)</p>
+      </b>
       <TextField
         sx={inputStyle}
         value={totalPreTaxTip}
@@ -140,7 +135,9 @@ function App() {
         onChange={(e) => setTotalPreTaxTip(parseFloat(e.target.value ?? 0))}
       ></TextField>
 
-      <b><p>How much was tax?</p></b>
+      <b>
+        <p>How much was tax?</p>
+      </b>
       <Stack direction="row" spacing={gridSpacing}>
         <TextField
           sx={inputStyle}
@@ -164,7 +161,9 @@ function App() {
         ></TextField>
       </Stack>
 
-      <b><p>How much was tip?</p></b>
+      <b>
+        <p>How much was tip?</p>
+      </b>
       <Stack direction="row" spacing={gridSpacing}>
         <TextField
           sx={inputStyle}
@@ -190,95 +189,97 @@ function App() {
 
       <p>Total all included: ${totalAllIncluded}</p>
 
-      <b><p>What did each person get?</p></b>
+      <b>
+        <p>What did each person get?</p>
+      </b>
       {people.map((person, i) => (
         <Card sx={paperStyle} variant="outlined">
           <Stack spacing={gridSpacing}>
-              <Stack direction="row" spacing={1} alignItems="center">
+            <Stack direction="row" spacing={1} alignItems="center">
+              <TextField
+                sx={inputStyle}
+                value={person.name}
+                label="Person Name"
+                onChange={(e) => {
+                  const newName = e.target.value;
+
+                  setPeople((s) => {
+                    const copyState = [...s];
+
+                    copyState[i].name = newName;
+
+                    return copyState;
+                  });
+                }}
+                InputProps={{
+                  endAdornment: (
+                    <IconButton
+                      sx={{ visibility: person.name ? "visible" : "hidden" }}
+                      onClick={() => {
+                        setPeople((s) => {
+                          const copyState = [...s];
+
+                          copyState[i].name = "";
+
+                          return copyState;
+                        });
+                      }}
+                    >
+                      <Clear />
+                    </IconButton>
+                  ),
+                }}
+              ></TextField>
+
+              <p style={{ whiteSpace: "nowrap" }}>
+                Total: ${personTotal(person)}
+              </p>
+
+              <Button
+                color="error"
+                onClick={() => {
+                  setPeople((s) => s.filter((_, j) => i !== j));
+                }}
+              >
+                <Delete />
+              </Button>
+            </Stack>
+
+            {person.items.map((item, j) => (
+              <Stack direction="row" spacing={1}>
+                {itemNameSelection(item, i, j)}
                 <TextField
                   sx={inputStyle}
-                  value={person.name}
-                  label="Person Name"
+                  value={item.cost}
+                  label="Item Cost"
+                  type="number"
+                  InputProps={{ inputProps: { min: 0 } }}
                   onChange={(e) => {
-                    const newName = e.target.value;
+                    const newCost = parseFloat(e.target.value);
 
                     setPeople((s) => {
                       const copyState = [...s];
-
-                      copyState[i].name = newName;
-
+                      copyState[i].items[j].cost = newCost;
                       return copyState;
                     });
                   }}
-                  InputProps={{
-                    endAdornment: (
-                      <IconButton
-                        sx={{ visibility: person.name ? "visible" : "hidden" }}
-                        onClick={() => {
-                          setPeople((s) => {
-                            const copyState = [...s];
-
-                            copyState[i].name = "";
-
-                            return copyState;
-                          });
-                        }}
-                      >
-                        <Clear />
-                      </IconButton>
-                    ),
-                  }}
                 ></TextField>
-
-                <p style={{whiteSpace: "nowrap"}}>Total: ${personTotal(person)}</p>
 
                 <Button
                   color="error"
                   onClick={() => {
-                    setPeople((s) => s.filter((_, j) => i !== j));
+                    setPeople((s) => {
+                      const copyState = [...s];
+                      copyState[i].items = copyState[i].items.filter(
+                        (_, k) => k !== j
+                      );
+                      return copyState;
+                    });
                   }}
                 >
-                  <Delete />
+                  <RemoveCircle />
                 </Button>
               </Stack>
-              
-
-
-            {person.items.map((item, j) => (
-                <Stack direction="row" spacing={1}>
-                  {itemNameSelection(item, i, j)}
-                  <TextField
-                    sx={inputStyle}
-                    value={item.cost}
-                    label="Item Cost"
-                    type="number"
-                    InputProps={{ inputProps: { min: 0 } }}
-                    onChange={(e) => {
-                      const newCost = parseFloat(e.target.value);
-
-                      setPeople((s) => {
-                        const copyState = [...s];
-                        copyState[i].items[j].cost = newCost;
-                        return copyState;
-                      });
-                    }}
-                  ></TextField>
-
-                  <Button
-                    color="error"
-                    onClick={() => {
-                      setPeople((s) => {
-                        const copyState = [...s];
-                        copyState[i].items = copyState[i].items.filter(
-                          (_, k) => k !== j
-                        );
-                        return copyState;
-                      });
-                    }}
-                  >
-                    <RemoveCircle />
-                  </Button>
-                </Stack>
             ))}
 
             <Button
@@ -322,7 +323,7 @@ function App() {
       </Button>
       <p>Breakdown</p>
 
-      <Table sx={{ml: isMobile ? -2: 0}}>
+      <Table sx={{ ml: isMobile ? -2 : 0 }}>
         <TableHead>
           <TableRow>
             <TableCell>Name</TableCell>
