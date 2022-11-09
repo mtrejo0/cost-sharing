@@ -1,7 +1,6 @@
 import { useState } from "react";
 import {
   Button,
-  Card,
   Checkbox,
   FormControl,
   IconButton,
@@ -11,7 +10,6 @@ import {
   OutlinedInput,
   Paper,
   Select,
-  SelectChangeEvent,
   Stack,
   Table,
   TableBody,
@@ -53,7 +51,7 @@ function App() {
   const initialItem = {
     name: "Item 1",
     cost: 10,
-    people: ["Myself", "Person 1"]
+    people: []
   };
 
  
