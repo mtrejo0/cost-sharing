@@ -1,1 +1,1 @@
-# React app made using typescript-firebase template
+# A Better cost splitting app!
