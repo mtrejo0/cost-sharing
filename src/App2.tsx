@@ -138,6 +138,14 @@ function App() {
               color="error"
               onClick={() => {
                 setNames((s) => s.filter((_, j) => i !== j));
+
+                setItems((s) => s.map(each => {
+                    
+                    const copyState = {...each}
+                    copyState.people = copyState.people.filter(p => p !== name)
+                    return copyState
+                  })
+                )
               }}
             >
               <Delete />
