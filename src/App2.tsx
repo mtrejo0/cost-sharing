@@ -93,9 +93,10 @@ function App() {
 
   return (
     <Stack sx={{ padding: "16px" }}>
-      <b>
-        <p>1) Add people</p>
-      </b>
+      
+        <p><b>1) Add people</b></p>
+        <p style={{marginTop: "-8px"}}>List everyone who joined on the bill!</p>
+      
       <Stack spacing={1}>
         {names.map((name, i) => (
           <Stack direction="row" spacing={1} alignItems="center">
@@ -169,9 +170,9 @@ function App() {
         </Button>
       </Stack>
 
-      <b>
-        <p>2) Add items</p>
-      </b>
+      
+      <p><b>2) Add items</b> </p>
+      <p style={{marginTop: "-8px"}}>Add each item from the bill and who joined for each item.  eg: pasta: moises, salad: marco, breadsticks: moises + marco</p>
 
       <Stack spacing={1}>
         {items.map((item, i) => (
@@ -298,10 +299,10 @@ function App() {
         </Button>
       </Stack>
 
-      <p>Subtotal: ${itemsSubtotal}</p>
+      <b><p>Subtotal: ${itemsSubtotal}</p></b>
 
       <b>
-        <p>3) How much was the bill plus tax and tip?</p>
+        <p>3) How much was the final bill (subtotal + tax + tip)?</p>
       </b>
       <Stack direction="row" spacing={gridSpacing}>
         <TextField
@@ -317,9 +318,8 @@ function App() {
         ></TextField>
       </Stack>
 
-      <b>
-        <p>4) Breakdown</p>
-      </b>
+      <p><b>4) Breakdown</b> </p>
+      <p style={{marginTop: "-8px"}}>Each person pays this amount: <code style={{color: "blue"}}>individual_items_total * (subtotal + tax + tip) / subtotal</code></p>
 
       <Table>
         <TableHead>
