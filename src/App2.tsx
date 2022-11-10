@@ -17,7 +17,6 @@ import {
   TableHead,
   TableRow,
   TextField,
-  useMediaQuery,
 } from "@mui/material";
 import {
   Add,
@@ -41,7 +40,6 @@ const paperStyle = { padding: "16px" };
 const gridSpacing = 4;
 
 function App() {
-  const isMobile = useMediaQuery("(max-width:600px)");
 
   const initialItem = {
     name: "Item 1",
@@ -51,12 +49,6 @@ function App() {
 
   const [newPersonIndex, setNewPersonIndex] = useState(2);
   const [newItemIndex, setNewItemIndex] = useState(2);
-
-  const [taxDollars, setTaxDollars] = useState(0);
-  const [taxPercentage, setTaxPercentage] = useState(0);
-
-  const [tipDollars, setTipDollars] = useState(0);
-  const [tipPercentage, setTipPercentage] = useState(0);
 
   const personTotal = (name: string) => {
     let sum = 0;
@@ -74,22 +66,19 @@ function App() {
 
   const [items, setItems] = useState<Item[]>([initialItem]);
 
+  const [total, setTotal] = useState(0)
+
   const itemsSubtotal = items.reduce((a, s) => a + s.cost, 0);
-  const itemsSubtotalPlusTax = (itemsSubtotal + taxDollars).toFixed(2);
-  const itemsSubtotalPlusTaxTip = (
-    itemsSubtotal +
-    tipDollars +
-    taxDollars
-  ).toFixed(2);
 
   const peopleSubtotal = names.reduce((a, s) => a + personTotal(s), 0).toFixed(2);
-
   const peopleSubtotalPlusTax = names
-    .reduce((a, s) => a + (personTotal(s) * taxPercentage) / 100, 0)
+    .reduce((a, s) => a + ((total/itemsSubtotal - 1) * personTotal(s)), 0)
     .toFixed(2);
 
-  const peopleSubtotalPlusTaxTip =
-    parseFloat(peopleSubtotal) + tipDollars + taxDollars;
+  const peopleSubtotalPlusTaxTip = names
+  .reduce((a, s) => a + (total/itemsSubtotal * personTotal(s)), 0)
+  .toFixed(2);
+
 
   const ITEM_HEIGHT = 48;
   const ITEM_PADDING_TOP = 8;
@@ -304,78 +293,32 @@ function App() {
       <p>Subtotal: ${itemsSubtotal}</p>
 
       <b>
-        <p>3) How much was tax?</p>
-      </b>
-      <Stack direction="row" spacing={gridSpacing}>
-        <TextField
-          sx={inputStyle}
-          value={taxDollars}
-          type="number"
-          label="in $"
-          InputProps={{ inputProps: { min: 0 } }}
-          onChange={(e) => {
-            const v = parseFloat(e.target.value ?? 0);
-            setTaxDollars(v);
-
-            setTaxPercentage(
-              parseFloat(((v / itemsSubtotal) * 100).toFixed(2))
-            );
-          }}
-        ></TextField>
-        <TextField
-          sx={inputStyle}
-          value={taxPercentage}
-          type="number"
-          label="in %"
-          InputProps={{ inputProps: { min: 0 } }}
-        ></TextField>
-      </Stack>
-
-      <p>Subtotal + Tax: ${itemsSubtotalPlusTax}</p>
-
-      <b>
-        <p>4) How much was tip?</p>
+        <p>3) How much was the bill plus tax and tip?</p>
       </b>
       <Stack direction="row" spacing={gridSpacing}>
         <TextField
           sx={inputStyle}
           label="in $"
-          value={tipDollars}
+          value={total}
           type="number"
           InputProps={{ inputProps: { min: 0 } }}
           onChange={(e) => {
             const v = parseFloat(e.target.value ?? 0);
-            setTipDollars(v);
-
-            setTipPercentage(
-              parseFloat(
-                ((v / parseFloat(itemsSubtotalPlusTax)) * 100).toFixed(2)
-              )
-            );
+            setTotal(v);
           }}
-        ></TextField>
-        <TextField
-          sx={inputStyle}
-          label="in %"
-          value={tipPercentage}
-          type="number"
-          InputProps={{ inputProps: { min: 0 } }}
         ></TextField>
       </Stack>
 
-      <p>Subtotal + Tax + Tip: ${itemsSubtotalPlusTaxTip}</p>
-
       <b>
-        <p>5) Breakdown</p>
+        <p>4) Breakdown</p>
       </b>
 
-      <Table sx={{ ml: isMobile ? -2 : 0 }}>
+      <Table>
         <TableHead>
           <TableRow>
             <TableCell>Name</TableCell>
             <TableCell align="right">Cost</TableCell>
-            <TableCell align="right">Tax</TableCell>
-            <TableCell align="right">Tip</TableCell>
+            <TableCell align="right">Tax+Tip</TableCell>
             <TableCell align="right">Owes</TableCell>
           </TableRow>
         </TableHead>
@@ -392,16 +335,12 @@ function App() {
                 ${personTotal(name).toFixed(2)}
               </TableCell>
               <TableCell align="right">
-                ${((personTotal(name) * taxPercentage) / 100).toFixed(2)}
-              </TableCell>
-              <TableCell align="right">
-                ${(tipDollars / names.length).toFixed(2)}
+                ${((total/itemsSubtotal - 1) * personTotal(name)).toFixed(2)}
               </TableCell>
               <TableCell align="right">
                 $
                 {(
-                  personTotal(name) *
-                  (1 + tipPercentage / 100 + taxPercentage / 100)
+                  total/itemsSubtotal * personTotal(name)
                 ).toFixed(2)}
               </TableCell>
             </TableRow>
@@ -419,9 +358,8 @@ function App() {
             </TableCell>
             <TableCell align="right">${peopleSubtotal}</TableCell>
             <TableCell align="right">${peopleSubtotalPlusTax}</TableCell>
-            <TableCell align="right">${tipDollars.toFixed(2)}</TableCell>
             <TableCell align="right">
-              ${peopleSubtotalPlusTaxTip.toFixed(2)}
+              ${peopleSubtotalPlusTaxTip}
             </TableCell>
           </TableRow>
 
@@ -430,13 +368,11 @@ function App() {
               Expected
             </TableCell>
             <TableCell align="right">${itemsSubtotal.toFixed(2)}</TableCell>
-            <TableCell align="right">${taxDollars.toFixed(2)}</TableCell>
-            <TableCell align="right">${tipDollars.toFixed(2)}</TableCell>
-
+            <TableCell align="right">${(total - itemsSubtotal).toFixed(2)}</TableCell>
             <TableCell align="right">
               $
               {(
-                peopleSubtotalPlusTaxTip - parseFloat(itemsSubtotalPlusTaxTip)
+                parseFloat(peopleSubtotalPlusTaxTip) - total
               ).toFixed(2)}
             </TableCell>
           </TableRow>
