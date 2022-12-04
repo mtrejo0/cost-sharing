@@ -18,18 +18,10 @@ import {
   TableRow,
   TextField,
 } from "@mui/material";
-import {
-  Add,
-  Clear,
-  Delete,
-  RemoveCircle,
-} from "@mui/icons-material";
-
-interface Item {
-  name: string;
-  cost: number;
-  people: string[];
-}
+import { Add, Clear, Delete, RemoveCircle } from "@mui/icons-material";
+import CurrencyTextField from "@unicef/material-ui-currency-textfield";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 const buttonStyle = { width: { md: "150px", xs: "100%" } };
 
@@ -40,17 +32,19 @@ const paperStyle = { padding: "16px" };
 const gridSpacing = 4;
 
 function App() {
-
   const initialItem = {
     name: "Item 1",
     cost: 10.5,
     people: [],
   };
 
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const [newPersonIndex, setNewPersonIndex] = useState(2);
   const [newItemIndex, setNewItemIndex] = useState(2);
 
-  const personTotal = (name: string) => {
+  const personTotal = (name) => {
     let sum = 0;
     items.forEach((each) => {
       if (each.people.includes(name)) {
@@ -62,23 +56,24 @@ function App() {
     return sum;
   };
 
-  const [names, setNames] = useState<string[]>(["Myself", "Person 1"]);
+  const [names, setNames] = useState(["Myself", "Person 1"]);
 
-  const [items, setItems] = useState<Item[]>([initialItem]);
+  const [items, setItems] = useState([initialItem]);
 
-  const [total, setTotal] = useState(0)
+  const [total, setTotal] = useState(0);
 
-  const itemsSubtotal = items.reduce((a, s) => a + s.cost, 0);
+  const itemsSubtotal = items.reduce((a, s) => a + parseFloat(s.cost), 0);
 
-  const peopleSubtotal = names.reduce((a, s) => a + personTotal(s), 0).toFixed(2);
+  const peopleSubtotal = names
+    .reduce((a, s) => a + personTotal(s), 0)
+    .toFixed(2);
   const peopleSubtotalPlusTax = names
-    .reduce((a, s) => a + ((total/itemsSubtotal - 1) * personTotal(s)), 0)
+    .reduce((a, s) => a + (total / itemsSubtotal - 1) * personTotal(s), 0)
     .toFixed(2);
 
   const peopleSubtotalPlusTaxTip = names
-  .reduce((a, s) => a + (total/itemsSubtotal * personTotal(s)), 0)
-  .toFixed(2);
-
+    .reduce((a, s) => a + (total / itemsSubtotal) * personTotal(s), 0)
+    .toFixed(2);
 
   const ITEM_HEIGHT = 48;
   const ITEM_PADDING_TOP = 8;
@@ -93,13 +88,19 @@ function App() {
 
   return (
     <Stack sx={{ padding: "16px" }}>
-      
-        <p><b>1) Add people</b></p>
-        <p style={{marginTop: "-8px"}}>List everyone who joined on the bill!</p>
-      
+      <p>
+        <b>1) Add people</b>
+      </p>
+      <p style={{ marginTop: "-8px" }}>List everyone who joined on the bill!</p>
+
       <Stack spacing={1}>
         {names.map((name, i) => (
-          <Stack direction="row" spacing={1} alignItems="center">
+          <Stack
+            direction="row"
+            spacing={1}
+            alignItems="center"
+            key={`name_${i}`}
+          >
             <TextField
               sx={inputStyle}
               value={name}
@@ -140,13 +141,15 @@ function App() {
               onClick={() => {
                 setNames((s) => s.filter((_, j) => i !== j));
 
-                setItems((s) => s.map(each => {
-                    
-                    const copyState = {...each}
-                    copyState.people = copyState.people.filter(p => p !== name)
-                    return copyState
+                setItems((s) =>
+                  s.map((each) => {
+                    const copyState = { ...each };
+                    copyState.people = copyState.people.filter(
+                      (p) => p !== name
+                    );
+                    return copyState;
                   })
-                )
+                );
               }}
             >
               <Delete />
@@ -170,13 +173,17 @@ function App() {
         </Button>
       </Stack>
 
-      
-      <p><b>2) Add items</b> </p>
-      <p style={{marginTop: "-8px"}}>Add each item from the bill and who joined for each item.  eg: pasta: moises, salad: marco, breadsticks: moises + marco</p>
+      <p>
+        <b>2) Add items</b>{" "}
+      </p>
+      <p style={{ marginTop: "-8px" }}>
+        Add each item from the bill and who joined for each item. eg: pasta:
+        moises, salad: marco, breadsticks: moises + marco
+      </p>
 
       <Stack spacing={1}>
         {items.map((item, i) => (
-          <Paper style={paperStyle} elevation={4}>
+          <Paper style={paperStyle} elevation={4} key={`item_${i}`}>
             <Stack spacing={1}>
               <Stack direction="row" spacing={1}>
                 <TextField
@@ -214,22 +221,23 @@ function App() {
                     ),
                   }}
                 ></TextField>
-                <TextField
-                  sx={inputStyle}
-                  value={item.cost}
+                <CurrencyTextField
+                  style={{ width: isMobile ? "100%" : "150px" }}
                   label="Item Cost"
-                  type="number"
-                  InputProps={{ inputProps: { min: 0 } }}
-                  onChange={(e) => {
+                  variant="outlined"
+                  value={item.cost}
+                  currencySymbol="$"
+                  outputFormat="string"
+                  onChange={(event, value) => {
                     setItems((s) => {
                       const copyState = [...s];
 
-                      copyState[i].cost = parseFloat(e.target.value);
+                      copyState[i].cost = value;
 
                       return copyState;
                     });
                   }}
-                ></TextField>
+                />
 
                 <Button
                   color="error"
@@ -299,27 +307,36 @@ function App() {
         </Button>
       </Stack>
 
-      <b><p>Subtotal: ${itemsSubtotal}</p></b>
+      <b>
+        <p>Subtotal: ${itemsSubtotal}</p>
+      </b>
 
       <b>
         <p>3) How much was the final bill (subtotal + tax + tip)?</p>
       </b>
       <Stack direction="row" spacing={gridSpacing}>
-        <TextField
-          sx={inputStyle}
-          label="in $"
+        <CurrencyTextField
+          style={{ width: isMobile ? "100%" : "150px" }}
+          label="Final Amount"
+          variant="outlined"
           value={total}
-          type="number"
-          InputProps={{ inputProps: { min: 0 } }}
-          onChange={(e) => {
-            const v = parseFloat(e.target.value ?? 0);
-            setTotal(v);
+          currencySymbol="$"
+          outputFormat="string"
+          onChange={(event, value) => {
+            setTotal(value);
           }}
-        ></TextField>
+        />
       </Stack>
 
-      <p><b>4) Breakdown</b> </p>
-      <p style={{marginTop: "-8px"}}>Each person pays this amount: <code style={{color: "blue"}}>individual_items_total * (subtotal + tax + tip) / subtotal</code></p>
+      <p>
+        <b>4) Breakdown</b>{" "}
+      </p>
+      <p style={{ marginTop: "-8px" }}>
+        Each person pays this amount:{" "}
+        <code style={{ color: "blue" }}>
+          individual_items_total * (subtotal + tax + tip) / subtotal
+        </code>
+      </p>
 
       <Table>
         <TableHead>
@@ -343,13 +360,10 @@ function App() {
                 ${personTotal(name).toFixed(2)}
               </TableCell>
               <TableCell align="right">
-                ${((total/itemsSubtotal - 1) * personTotal(name)).toFixed(2)}
+                ${((total / itemsSubtotal - 1) * personTotal(name)).toFixed(2)}
               </TableCell>
               <TableCell align="right">
-                $
-                {(
-                  total/itemsSubtotal * personTotal(name)
-                ).toFixed(2)}
+                ${((total / itemsSubtotal) * personTotal(name)).toFixed(2)}
               </TableCell>
             </TableRow>
           ))}
@@ -366,22 +380,19 @@ function App() {
             </TableCell>
             <TableCell align="right">${peopleSubtotal}</TableCell>
             <TableCell align="right">${peopleSubtotalPlusTax}</TableCell>
-            <TableCell align="right">
-              ${peopleSubtotalPlusTaxTip}
-            </TableCell>
+            <TableCell align="right">${peopleSubtotalPlusTaxTip}</TableCell>
           </TableRow>
 
           <TableRow sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
             <TableCell component="th" scope="row">
               Expected
             </TableCell>
-            <TableCell align="right">${itemsSubtotal.toFixed(2)}</TableCell>
-            <TableCell align="right">${(total - itemsSubtotal).toFixed(2)}</TableCell>
+            <TableCell align="right">${itemsSubtotal}</TableCell>
             <TableCell align="right">
-              $
-              {(
-                parseFloat(peopleSubtotalPlusTaxTip) - total
-              ).toFixed(2)}
+              ${(total - itemsSubtotal).toFixed(2)}
+            </TableCell>
+            <TableCell align="right">
+              ${(parseFloat(peopleSubtotalPlusTaxTip) - total).toFixed(2)}
             </TableCell>
           </TableRow>
         </TableBody>

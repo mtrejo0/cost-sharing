@@ -131,7 +131,7 @@ function App() {
         value={totalPreTaxTip}
         label="in $"
         type="number"
-        InputProps={{ inputProps: { min: 0} }}
+        InputProps={{ inputProps: { min: 0 } }}
         onChange={(e) => setTotalPreTaxTip(parseFloat(e.target.value ?? 0))}
       ></TextField>
 
