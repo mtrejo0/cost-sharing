@@ -325,6 +325,7 @@ function App() {
           onChange={(event, value) => {
             setTotal(value);
           }}
+          error={total < itemsSubtotal}
         />
       </Stack>
 
@@ -381,19 +382,6 @@ function App() {
             <TableCell align="right">${peopleSubtotal}</TableCell>
             <TableCell align="right">${peopleSubtotalPlusTax}</TableCell>
             <TableCell align="right">${peopleSubtotalPlusTaxTip}</TableCell>
-          </TableRow>
-
-          <TableRow sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
-            <TableCell component="th" scope="row">
-              Expected
-            </TableCell>
-            <TableCell align="right">${itemsSubtotal}</TableCell>
-            <TableCell align="right">
-              ${(total - itemsSubtotal).toFixed(2)}
-            </TableCell>
-            <TableCell align="right">
-              ${(parseFloat(peopleSubtotalPlusTaxTip) - total).toFixed(2)}
-            </TableCell>
           </TableRow>
         </TableBody>
       </Table>
