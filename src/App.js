@@ -4,12 +4,8 @@ import {
   Checkbox,
   FormControl,
   IconButton,
-  InputLabel,
-  ListItemText,
-  MenuItem,
-  OutlinedInput,
+  FormControlLabel,
   Paper,
-  Select,
   Stack,
   Table,
   TableBody,
@@ -17,8 +13,9 @@ import {
   TableHead,
   TableRow,
   TextField,
+  FormGroup,
 } from "@mui/material";
-import { Add, Clear, Delete, RemoveCircle } from "@mui/icons-material";
+import { Add, Clear, RemoveCircle } from "@mui/icons-material";
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -41,7 +38,6 @@ function App() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const [newPersonIndex, setNewPersonIndex] = useState(2);
   const [newItemIndex, setNewItemIndex] = useState(2);
 
   const personTotal = (name) => {
@@ -75,25 +71,23 @@ function App() {
     .reduce((a, s) => a + (total / itemsSubtotal) * personTotal(s), 0)
     .toFixed(2);
 
-  const ITEM_HEIGHT = 48;
-  const ITEM_PADDING_TOP = 8;
-  const MenuProps = {
-    PaperProps: {
-      style: {
-        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-        width: 250,
-      },
-    },
-  };
+
 
   return (
     <Stack sx={{ padding: "16px" }}>
       <p>
         <b>1) Add people</b>
       </p>
-      <p style={{ marginTop: "-8px" }}>List everyone who joined on the bill!</p>
+      <p style={{ marginTop: "-8px" }}>List everyone who joined on the bill! Separated by commas</p>
 
-      <Stack spacing={1}>
+      <TextField multiline rows={2} sx={{width: isMobile ? "100%" : "50vw"}} onChange={(e) => {
+          const newNames = e.target.value; 
+          setNames(newNames.split(","))
+      }} value={names.join(",")}/>
+
+
+
+      {/* <Stack spacing={1}>
         {names.map((name, i) => (
           <Stack
             direction="row"
@@ -171,7 +165,7 @@ function App() {
         >
           Person
         </Button>
-      </Stack>
+      </Stack> */}
 
       <p>
         <b>2) Add items</b>{" "}
@@ -250,10 +244,41 @@ function App() {
               </Stack>
 
               <FormControl sx={{ width: { xs: "100%", md: 310 } }}>
-                <InputLabel id="demo-multiple-checkbox-label">
-                  Who joined?
-                </InputLabel>
-                <Select
+                <p>Who joined?</p>
+
+                <FormGroup row>
+  {names.map((name) => (
+    <FormControlLabel
+      key={name}
+      control={
+        <Checkbox
+          checked={item.people.includes(name)}
+          onChange={(e) => {
+            const checked = e.target.checked;
+
+            setItems((s) => {
+              const copyState = [...s];
+              const index = copyState.findIndex((i) => i.id === item.id);
+              const people = copyState[index].people;
+
+              if (checked) {
+                copyState[index].people = [...people, name];
+              } else {
+                copyState[index].people = people.filter((p) => p !== name);
+              }
+
+              return copyState;
+            });
+          }}
+          name={name}
+        />
+      }
+      label={name}
+    />
+  ))}
+</FormGroup>
+
+                {/* <Select
                   labelId="demo-multiple-checkbox-label"
                   id="demo-multiple-checkbox"
                   multiple
@@ -283,7 +308,7 @@ function App() {
                       <ListItemText primary={name} />
                     </MenuItem>
                   ))}
-                </Select>
+                </Select> */}
               </FormControl>
             </Stack>
           </Paper>
