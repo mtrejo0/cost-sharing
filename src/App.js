@@ -3,7 +3,6 @@ import {
   Button,
   Checkbox,
   FormControl,
-  IconButton,
   FormControlLabel,
   Paper,
   Stack,
@@ -15,7 +14,7 @@ import {
   TextField,
   FormGroup,
 } from "@mui/material";
-import { Add, Clear, RemoveCircle } from "@mui/icons-material";
+import { Add, Delete } from "@mui/icons-material";
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -30,15 +29,24 @@ const gridSpacing = 4;
 
 function App() {
   const initialItem = {
-    name: "Item 1",
-    cost: 10.5,
+    name: "",
+    cost: 0,
     people: [],
   };
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const [newItemIndex, setNewItemIndex] = useState(2);
+  const [names, setNames] = useState(["Me", "You"]);
+
+  const [items, setItems] = useState([
+    { ...initialItem, people: ["Me"] },
+    { ...initialItem, people: ["You"] },
+  ]);
+
+  const [total, setTotal] = useState(0);
+
+  const itemsSubtotal = items.reduce((a, s) => a + parseFloat(s.cost), 0);
 
   const personTotal = (name) => {
     let sum = 0;
@@ -52,14 +60,6 @@ function App() {
     return sum;
   };
 
-  const [names, setNames] = useState(["Myself", "Person 1"]);
-
-  const [items, setItems] = useState([initialItem]);
-
-  const [total, setTotal] = useState(0);
-
-  const itemsSubtotal = items.reduce((a, s) => a + parseFloat(s.cost), 0);
-
   const peopleSubtotal = names
     .reduce((a, s) => a + personTotal(s), 0)
     .toFixed(2);
@@ -71,108 +71,48 @@ function App() {
     .reduce((a, s) => a + (total / itemsSubtotal) * personTotal(s), 0)
     .toFixed(2);
 
+  const handleChange = (itemIndex, name) => (e) => {
+    const checked = e.target.checked;
 
+    setItems((s) => {
+      const copyState = [...s];
+      const people = copyState[itemIndex].people;
+
+      if (checked) {
+        copyState[itemIndex].people = [...people, name];
+      } else {
+        copyState[itemIndex].people = people.filter((p) => p !== name);
+      }
+
+      return copyState;
+    });
+  };
 
   return (
     <Stack sx={{ padding: "16px" }}>
       <p>
-        <b>1) Add people</b>
-      </p>
-      <p style={{ marginTop: "-8px" }}>List everyone who joined on the bill! Separated by commas</p>
-
-      <TextField multiline rows={2} sx={{width: isMobile ? "100%" : "50vw"}} onChange={(e) => {
-          const newNames = e.target.value; 
-          setNames(newNames.split(","))
-      }} value={names.join(",")}/>
-
-
-
-      {/* <Stack spacing={1}>
-        {names.map((name, i) => (
-          <Stack
-            direction="row"
-            spacing={1}
-            alignItems="center"
-            key={`name_${i}`}
-          >
-            <TextField
-              sx={inputStyle}
-              value={name}
-              label="Person Name"
-              onChange={(e) => {
-                const newName = e.target.value;
-
-                setNames((s) => {
-                  const copyState = [...s];
-
-                  copyState[i] = newName;
-
-                  return copyState;
-                });
-              }}
-              InputProps={{
-                endAdornment: (
-                  <IconButton
-                    sx={{ visibility: name ? "visible" : "hidden" }}
-                    onClick={() => {
-                      setNames((s) => {
-                        const copyState = [...s];
-
-                        copyState[i] = "";
-
-                        return copyState;
-                      });
-                    }}
-                  >
-                    <Clear />
-                  </IconButton>
-                ),
-              }}
-            ></TextField>
-
-            <Button
-              color="error"
-              onClick={() => {
-                setNames((s) => s.filter((_, j) => i !== j));
-
-                setItems((s) =>
-                  s.map((each) => {
-                    const copyState = { ...each };
-                    copyState.people = copyState.people.filter(
-                      (p) => p !== name
-                    );
-                    return copyState;
-                  })
-                );
-              }}
-            >
-              <Delete />
-            </Button>
-          </Stack>
-        ))}
-
-        <Button
-          sx={buttonStyle}
-          variant="outlined"
-          startIcon={<Add />}
-          onClick={() => {
-            setNames((s) => {
-              const newPerson = `Person ${newPersonIndex}`;
-              return [...s, newPerson];
-            });
-            setNewPersonIndex((v) => v + 1);
-          }}
-        >
-          Person
-        </Button>
-      </Stack> */}
-
-      <p>
-        <b>2) Add items</b>{" "}
+        <b>1) List people</b>
       </p>
       <p style={{ marginTop: "-8px" }}>
-        Add each item from the bill and who joined for each item. eg: pasta:
-        moises, salad: marco, breadsticks: moises + marco
+        List everyone who joined on the bill! Separated by commas
+      </p>
+
+      <TextField
+        multiline
+        rows={2}
+        sx={{ width: isMobile ? "100%" : "50vw" }}
+        onChange={(e) => {
+          const newNames = e.target.value;
+          setNames(newNames.split(","));
+        }}
+        value={names.join(",")}
+      />
+
+      <p>
+        <b>2) List items</b>{" "}
+      </p>
+      <p style={{ marginTop: "-8px" }}>
+        Add each item from the bill and check who joined for each item
       </p>
 
       <Stack spacing={1}>
@@ -193,26 +133,6 @@ function App() {
 
                       return copyState;
                     });
-                  }}
-                  InputProps={{
-                    endAdornment: (
-                      <IconButton
-                        sx={{
-                          visibility: item.name ? "visible" : "hidden",
-                        }}
-                        onClick={() => {
-                          setItems((s) => {
-                            const copyState = [...s];
-
-                            copyState[i].name = "";
-
-                            return copyState;
-                          });
-                        }}
-                      >
-                        <Clear />
-                      </IconButton>
-                    ),
                   }}
                 ></TextField>
                 <CurrencyTextField
@@ -239,93 +159,42 @@ function App() {
                     setItems((s) => s.filter((_, j) => i !== j));
                   }}
                 >
-                  <RemoveCircle />
+                  <Delete />
                 </Button>
               </Stack>
 
               <FormControl sx={{ width: { xs: "100%", md: 310 } }}>
-                <p>Who joined?</p>
-
                 <FormGroup row>
-  {names.map((name) => (
-    <FormControlLabel
-      key={name}
-      control={
-        <Checkbox
-          checked={item.people.includes(name)}
-          onChange={(e) => {
-            const checked = e.target.checked;
-
-            setItems((s) => {
-              const copyState = [...s];
-              const index = copyState.findIndex((i) => i.id === item.id);
-              const people = copyState[index].people;
-
-              if (checked) {
-                copyState[index].people = [...people, name];
-              } else {
-                copyState[index].people = people.filter((p) => p !== name);
-              }
-
-              return copyState;
-            });
-          }}
-          name={name}
-        />
-      }
-      label={name}
-    />
-  ))}
-</FormGroup>
-
-                {/* <Select
-                  labelId="demo-multiple-checkbox-label"
-                  id="demo-multiple-checkbox"
-                  multiple
-                  value={item.people}
-                  error={item.people.length === 0}
-                  onChange={(e) => {
-                    const value = e.target.value;
-
-                    const names =
-                      typeof value === "string" ? value.split(",") : value;
-
-                    setItems((s) => {
-                      const copyState = [...s];
-
-                      copyState[i].people = names;
-
-                      return copyState;
-                    });
-                  }}
-                  input={<OutlinedInput label="Who joined?" />}
-                  renderValue={(selected) => selected.join(", ")}
-                  MenuProps={MenuProps}
-                >
                   {names.map((name) => (
-                    <MenuItem key={name} value={name}>
-                      <Checkbox checked={item.people.indexOf(name) > -1} />
-                      <ListItemText primary={name} />
-                    </MenuItem>
+                    <FormControlLabel
+                      key={name}
+                      control={
+                        <Checkbox
+                          checked={items[i].people.includes(name)}
+                          onChange={handleChange(i, name)} // Use the handleChange function with the corresponding item index
+                          name={name}
+                        />
+                      }
+                      label={name}
+                    />
                   ))}
-                </Select> */}
+                </FormGroup>
               </FormControl>
             </Stack>
           </Paper>
         ))}
         <Button
           sx={buttonStyle}
-          variant="outlined"
+          variant="contained"
           startIcon={<Add />}
           onClick={() => {
             setItems((s) => {
               const newItem = {
                 ...initialItem,
-                name: `Item ${newItemIndex}`,
+                name: ``,
               };
               return [...s, newItem];
             });
-            setNewItemIndex((s) => s + 1);
           }}
         >
           Item
@@ -337,7 +206,7 @@ function App() {
       </b>
 
       <b>
-        <p>3) How much was the final bill (subtotal + tax + tip)?</p>
+        <p>3) Final bill (subtotal + tax + tip)?</p>
       </b>
       <Stack direction="row" spacing={gridSpacing}>
         <CurrencyTextField
